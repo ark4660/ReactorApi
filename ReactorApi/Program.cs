@@ -6,8 +6,11 @@ using Google.Cloud.Storage.V1;
 using Grpc.Auth;
 using ReactorApi.Controllers;
 using Scalar.AspNetCore;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Http;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 
 
@@ -16,10 +19,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add CORS policy
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactApp",
+    options.AddPolicy("AllowAll",
         builder =>
         {
-            builder.WithOrigins("http://localhost:3000") // React app origin
+            builder.AllowAnyOrigin() // React app origin
                    .AllowAnyHeader()
                    .AllowAnyMethod();
         });
@@ -47,6 +50,8 @@ builder.Services.AddSingleton(sp =>
 
 var storage = StorageClient.Create(GoogleCredential.FromFile("Service/nuclearreactor-2b876-firebase-adminsdk-fbsvc-a01871a38f.json"));
 
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -56,10 +61,16 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.MapGet("/", () => "Hello from Azure!");
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.UseForwardedHeaders();
+
 app.MapControllers();
 
 app.Run();
+
+

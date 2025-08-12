@@ -66,9 +66,14 @@ namespace ReactorApi.Controllers
 
         [HttpGet]
         [Route("Videos")]
-        public ActionResult GetVideo()
+        public async Task<ActionResult> GetVideo()
         {
-            return null;
+            var collection = _db.Collection("videos");
+            var snapshot = await collection.GetSnapshotAsync();
+            var videos = snapshot.Documents.Where(d => d.Exists).Select(d => d.ConvertTo<VideoMetaData>()).ToList();
+
+            return Ok(videos);
+            
         }
     }
     
